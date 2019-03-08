@@ -11,3 +11,7 @@ html {
 body {
   margin-bottom: 70px;
 }
+
+.bg-blue-custom {
+  background-color: #afd7ff;
+}
