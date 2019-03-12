@@ -4,7 +4,7 @@ import { CLIENTES } from './clientes.json';
 import { Cliente } from './cliente';
 import { Observable, throwError } from 'rxjs';
 import { of } from 'rxjs';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpRequest, HttpEvent } from '@angular/common/http';
 import { map, catchError, tap } from 'rxjs/operators';
 import swal from 'sweetalert2';
 
@@ -111,6 +111,26 @@ export class ClienteService {
         swal('Error al eliminar el cliente', e.error.mensaje, 'error');
         return throwError(e);
       })
-    )
+    );
+  }
+
+  subirFoto(archivo: File, id): Observable<any> {
+    let formData = new FormData(); // clase nativa de javaScript, no hay que importarla
+    formData.append("archivo", archivo);
+    formData.append("id", id);
+
+    const req = new HttpRequest('POST',`${this.urlEndPoint}/upload`, formData, {
+      reportProgress: true
+    });
+
+    return this.http.request(req)
+    // .pipe(
+    //   map((response: any) => response.cliente as Cliente), // Obtenemos el cliente desde el backend. Video 13.8
+    //   catchError(e => {
+    //     console.error(e.error.mensaje);
+    //     swal(e.error.mensaje, e.error.mensaje, 'error');
+    //     return throwError(e);
+    //   })
+    // );
   }
 }
