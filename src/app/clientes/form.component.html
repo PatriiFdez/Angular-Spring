@@ -58,6 +58,16 @@
         </div>
       </div>
       <div class="form-group row">
+        <label for="region" class="col-form-label col-md-2">Región</label>
+        <div class="col-md-6">
+          <!-- <input type="date" class="form-control" [(ngModel)]="cliente.createAt" name="createAt"> -->
+          <select [compareWith]="compararRegion" class="form-control" [(ngModel)]="cliente.region" name="region" style="width: 300px;">
+            <option [ngValue]="undefined"> --- Seleccionar una región --- </option>
+            <option *ngFor="let region of regiones" [ngValue]="region">{{region.nombre}}</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group row">
         <div class="col-sm-6">
           <button class="btn btn-primary" (click)='create()' *ngIf="!cliente.id else elseBlock" role="button" [disabled]="!clienteForm.form.valid">Crear</button>
           <ng-template #elseBlock>

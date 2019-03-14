@@ -43,6 +43,17 @@ export class ClientesComponent implements OnInit {
         //   this.clientes = clientes
         // }
       )
+
+      this.modalService.notificarUpload.subscribe(
+        cliente => {
+          this.clientes.map(clienteOriginal => {
+            if(cliente.id == clienteOriginal.id) {
+              clienteOriginal.foto = cliente.foto;
+            }
+            return clienteOriginal;
+          })
+        }
+      );
     })
   }
 

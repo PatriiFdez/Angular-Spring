@@ -3,6 +3,7 @@ import { Cliente } from './cliente';
 import { ClienteService } from './cliente.service';
 import { Router, ActivatedRoute } from '@angular/router';
 import swal from 'sweetalert2';
+import { Region } from './region';
 
 @Component({
   selector: 'app-form',
@@ -10,20 +11,29 @@ import swal from 'sweetalert2';
 })
 export class FormComponent implements OnInit {
 
-  private cliente: Cliente = new Cliente();
-  private titulo: string = "Crear cliente";
+  cliente: Cliente = new Cliente();
+  regiones: Region[];
+  titulo: string = "Crear cliente";
 
-  private errores: string[];
+  errores: string[];
 
   constructor(private clienteService: ClienteService,
     private router: Router,
     private activatedRoute: ActivatedRoute) { }
 
   ngOnInit() {
-    this.cargarCliente();
+    // this.cargarCliente();
+    this.activatedRoute.params.subscribe(params => {
+      let id = +params['id'];
+      if (id) {
+        this.clienteService.getCliente(id).subscribe( (cliente) => this.cliente = cliente )
+      }
+    });
+    this.clienteService.getRegiones().subscribe(regiones => this.regiones = regiones);
   }
 
   create(): void {
+    console.log(this.cliente);
     this.clienteService.create(this.cliente).subscribe(
       cliente => {
         this.router.navigate(['/clientes']),
@@ -39,15 +49,16 @@ export class FormComponent implements OnInit {
   }
 
   cargarCliente(): void {
-    this.activatedRoute.params.subscribe(params => {
-      let id = params['id']
-      if (id) {
-        this.clienteService.getCliente(id).subscribe( (cliente) => this.cliente = cliente )
-      }
-    })
+    // this.activatedRoute.params.subscribe(params => {
+    //   let id = params['id']
+    //   if (id) {
+    //     this.clienteService.getCliente(id).subscribe( (cliente) => this.cliente = cliente )
+    //   }
+    // })
   }
 
   update():void {
+    console.log(this.cliente);
     this.clienteService.update(this.cliente)
       .subscribe( json => {
         this.router.navigate(['/clientes'])
@@ -59,6 +70,13 @@ export class FormComponent implements OnInit {
         console.log(err.error.errors);
       }
     )
+  }
+
+  compararRegion(o1: Region, o2: Region): boolean {
+    if(o1 === undefined && o2 === undefined) {
+      return true;
+    }
+    return o1 == null || o2 == null || o1 == undefined || o2 == undefined ? false : o1.id == o2.id;
   }
 
 }

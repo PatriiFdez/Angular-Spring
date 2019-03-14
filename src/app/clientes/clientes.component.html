@@ -13,7 +13,7 @@
     <table class="table table-striped m-2 table-responsive" *ngIf="clientes?.length>0">
       <thead>
         <tr>
-          <th>Id</th>
+          <th>#</th>
           <th>Nombre</th>
           <th>Apellido</th>
           <th class="d-none d-md-table-cell">Email</th>
@@ -25,8 +25,10 @@
       <tbody>
         <tr *ngFor="let cliente of clientes">
           <!-- <td> <button type="button" [routerLink]="['/clientes/ver', cliente.id]" class="btn btn-success btn-sm">{{ cliente.id }}</button></td> -->
-          <td><img *ngIf="cliente?.foto" src="http://localhost:8080/api/uploads/img/{{cliente.foto}}" alt="Imagen: {{cliente.foto}}" class="img-thumbnail rounded" style="cursor: pointer" width="240px;"></td>
-          <td><img *ngIf="!cliente?.foto" src="http://localhost:8080/images/no-user-image.png" alt="Sin Foto" class="img-thumbnail rounded" style="cursor: pointer" width="120px;"></td>
+          <td>
+            <img *ngIf="cliente?.foto" (click)="abrirModal(cliente)" src="http://localhost:8080/api/uploads/img/{{cliente.foto}}" alt="Imagen: {{cliente.foto}}" class="img-thumbnail rounded" style="cursor: pointer" width="240px;">
+            <img *ngIf="!cliente?.foto" (click)="abrirModal(cliente)" src="http://localhost:8080/images/no-user-image.png" alt="Sin Foto" class="img-thumbnail rounded" style="cursor: pointer" width="120px;">
+          </td>
           <!-- <td> <button type="button" (click)="abrirModal(cliente)" class="btn btn-success btn-sm">{{ cliente.id }}</button></td> -->
           <td> {{ cliente.nombre }}</td>
           <td> {{ cliente.apellido | uppercase }}</td>
