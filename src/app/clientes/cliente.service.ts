@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { formatDate, DatePipe } from '@angular/common';
-import { CLIENTES } from './clientes.json';
+// import { CLIENTES } from './clientes.json.js';
 import { Cliente } from './cliente';
 import { Observable, throwError } from 'rxjs';
 import { of } from 'rxjs';
@@ -21,15 +21,26 @@ export class ClienteService {
 
   constructor(private http: HttpClient, private router: Router) { }
 
+  private isNoAutorizado(error): boolean {
+    if(error.status==401 || error.status==403) {
+      this.router.navigate(['/login']);
+      return true;
+    }
+    return false;
+  }
+
   getRegiones(): Observable<Region[]> {
-    return this.http.get<Region[]>(this.urlEndPoint + '/regiones');
+    return this.http.get<Region[]>(this.urlEndPoint + '/regiones')
+    .pipe(catchError(e => {
+      this.isNoAutorizado(e);
+      return throwError(e);
+    }));
   }
 
   // getClientes(): Observable<Cliente[]> {
     getClientes(page: number): Observable<any> {
     // return of(CLIENTES);
     return this.http.get<Cliente[]>(this.urlEndPoint + '/page/' + page)
-
     .pipe(
       tap( (response: any) => {
           console.log('ClientesComponent: tap 1');
@@ -50,7 +61,7 @@ export class ClienteService {
             // cliente.createAt = datePipe.transform(cliente.createAt, 'fullDate');
             // cliente.createAt = datePipe.transform(cliente.createAt, 'EEE dd, MMM yyyy');
             // EEE Muestra el dia de la semana abreviado; EEEE muestra el dia de la semana completo; Lo mismo con el mes
-            // cliente.createAt = formatDate(cliente.createAt, 'dd-MM-yyyy', 'en-US');
+            // cliente.c reateAt = formatDate(cliente.createAt, 'dd-MM-yyyy', 'en-US');
             return cliente;
           });
           return response;
@@ -70,7 +81,9 @@ export class ClienteService {
     return this.http.post(this.urlEndPoint, cliente, {headers: this.httpHeaders}).pipe(
       map((response: any) => response.cliente as Cliente),
       catchError(e => {
-
+        if (this.isNoAutorizado(e)){
+          return throwError(e);
+        }
         if ( e.status==400 ) {
           return throwError(e);
         }
@@ -86,6 +99,9 @@ export class ClienteService {
   getCliente(id): Observable<Cliente> {
     return this.http.get<Cliente>(`${this.urlEndPoint}/${id}`).pipe(
       catchError(e => {
+        if (this.isNoAutorizado(e)){
+          return throwError(e);
+        }
         this.router.navigate(['clientes'])
         console.error(e.error.mensaje);
         swal('Error al editar', e.error.mensaje, 'error');
@@ -97,7 +113,9 @@ export class ClienteService {
   update(cliente: Cliente): Observable<any> {
     return this.http.put<any>(`${this.urlEndPoint}/${cliente.id}`, cliente, {headers: this.httpHeaders}).pipe(
       catchError(e => {
-
+        if (this.isNoAutorizado(e)){
+          return throwError(e);
+        }
         if ( e.status==400 ) {
           return throwError(e);
         }
@@ -112,6 +130,9 @@ export class ClienteService {
   delete(id: number): Observable<Cliente> {
     return this.http.delete<Cliente>(`${this.urlEndPoint}/${id}`, {headers: this.httpHeaders}).pipe(
       catchError(e => {
+        if (this.isNoAutorizado(e)){
+          return throwError(e);
+        }
         console.error(e.error.mensaje);
         swal('Error al eliminar el cliente', e.error.mensaje, 'error');
         return throwError(e);
@@ -128,7 +149,12 @@ export class ClienteService {
       reportProgress: true
     });
 
-    return this.http.request(req)
+    return this.http.request(req).pipe(
+      catchError(e => {
+        this.isNoAutorizado(e);
+        return throwError(e);
+      })
+    )
     // .pipe(
     //   map((response: any) => response.cliente as Cliente), // Obtenemos el cliente desde el backend. Video 13.8
     //   catchError(e => {
